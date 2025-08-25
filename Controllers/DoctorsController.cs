@@ -1,39 +1,39 @@
 using Microsoft.AspNetCore.Mvc;
 using Doctors.Models;
-using Doctors.Repositories;
+using Doctors.Services;
 
 namespace Doctors.Controllers
 {
   [ApiController]
   [Route("api/[controller]")]
-  public class DoctorsController : ControllerBase
+  public class DoctorsController(DoctorService service) : ControllerBase
   {
+    private readonly DoctorService _service = service;
+
     [HttpGet]
-    public ActionResult<IEnumerable<Doctor>> GetAll()
-    {
-      return Ok(DoctorRepository.GetAll());
-    }
+    public ActionResult<IEnumerable<Doctor>> GetAll() => Ok(_service.GetAll());
 
     [HttpGet("{id}")]
     public ActionResult<Doctor> GetById(int id)
     {
-      var doctor = DoctorRepository.GetById(id);
-      if (doctor == null)
-        return NotFound();
+      var doctor = _service.GetById(id);
+      if (doctor == null) return NotFound();
       return Ok(doctor);
     }
 
     [HttpPost]
-    public ActionResult<Doctor> Create(Doctor doctor)
+    public ActionResult<Doctor> Create([FromBody] Doctor doctor)
     {
-      var created = DoctorRepository.Add(doctor);
+      if (!ModelState.IsValid) return BadRequest(ModelState);
+      var created = _service.Add(doctor);
       return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     [HttpPut("{id}")]
-    public IActionResult Update(int id, Doctor updated)
+    public IActionResult Update(int id, [FromBody] Doctor doctor)
     {
-      var success = DoctorRepository.Update(id, updated);
+      if (!ModelState.IsValid) return BadRequest(ModelState);
+      var success = _service.Update(id, doctor);
       if (!success) return NotFound();
       return NoContent();
     }
@@ -41,7 +41,7 @@ namespace Doctors.Controllers
     [HttpDelete("{id}")]
     public IActionResult Delete(int id)
     {
-      var success = DoctorRepository.Delete(id);
+      var success = _service.Delete(id);
       if (!success) return NotFound();
       return NoContent();
     }

@@ -31,3 +31,4 @@ C:\Users\Prime Tech Solutions\Desktop\dotnet\doctors\obj\Debug\net8.0\refint\doc
 C:\Users\Prime Tech Solutions\Desktop\dotnet\doctors\obj\Debug\net8.0\doctors.pdb
 C:\Users\Prime Tech Solutions\Desktop\dotnet\doctors\obj\Debug\net8.0\doctors.genruntimeconfig.cache
 C:\Users\Prime Tech Solutions\Desktop\dotnet\doctors\obj\Debug\net8.0\ref\doctors.dll
+C:\Users\Prime Tech Solutions\Desktop\dotnet\doctors\obj\Debug\net8.0\doctors.sourcelink.json
