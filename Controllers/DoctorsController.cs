@@ -6,28 +6,21 @@ namespace Doctors.Controllers
 {
   [ApiController]
   [Route("api/[controller]")]
-  public class DoctorsController : ControllerBase
+  public class DoctorsController(DoctorService service, ILogger<DoctorsController> logger) : ControllerBase
   {
-    private readonly DoctorService _service;
-    private readonly ILogger<DoctorsController> _logger;
-
-    public DoctorsController(DoctorService service, ILogger<DoctorsController> logger)
-    {
-      _service = service;
-      _logger = logger;
-    }
+    private readonly ILogger<DoctorsController> _logger = logger;
 
     [HttpGet]
     public ActionResult<IEnumerable<DoctorResponseDto>> GetAll()
     {
       _logger.LogInformation("Fetching all doctors");
-      return Ok(_service.GetAll());
+      return Ok(service.GetAll());
     }
 
     [HttpGet("{id}")]
     public ActionResult<DoctorResponseDto> GetById(int id)
     {
-      var doctor = _service.GetById(id);
+      var doctor = service.GetById(id);
       if (doctor == null)
       {
         _logger.LogWarning("Doctor with id {Id} not found", id);
@@ -40,7 +33,7 @@ namespace Doctors.Controllers
     public ActionResult<DoctorResponseDto> Create([FromBody] CreateDoctorDto dto)
     {
       if (!ModelState.IsValid) return BadRequest(ModelState);
-      var created = _service.Add(dto);
+      var created = service.Add(dto);
       _logger.LogInformation("Created doctor with id {Id}", created.Id);
       return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
@@ -49,7 +42,7 @@ namespace Doctors.Controllers
     public IActionResult Update(int id, [FromBody] UpdateDoctorDto dto)
     {
       if (!ModelState.IsValid) return BadRequest(ModelState);
-      var success = _service.Update(id, dto);
+      var success = service.Update(id, dto);
       if (!success)
       {
         _logger.LogWarning("Failed to update doctor with id {Id}", id);
@@ -62,7 +55,7 @@ namespace Doctors.Controllers
     [HttpDelete("{id}")]
     public IActionResult Delete(int id)
     {
-      var success = _service.Delete(id);
+      var success = service.Delete(id);
       if (!success)
       {
         _logger.LogWarning("Failed to delete doctor with id {Id}", id);
