@@ -1,38 +1,48 @@
+using Doctors.Data;
 using Doctors.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Doctors.Repositories
 {
-  public class DoctorRepository
+  public class DoctorRepository : IDoctorRepository
   {
-    private static readonly List<Doctor> _doctors = [];
-    private static int _nextId = 1;
+    private readonly DoctorsDbContext _context;
 
-    public List<Doctor> GetAll() => _doctors;
-
-    public Doctor? GetById(int id) => _doctors.FirstOrDefault(d => d.Id == id);
-
-    public Doctor Add(Doctor doctor)
+    public DoctorRepository(DoctorsDbContext context)
     {
-      doctor.Id = _nextId++;
-      _doctors.Add(doctor);
-      return doctor;
+      _context = context;
     }
 
-    public bool Update(int id, Doctor updated)
+    public async Task<IEnumerable<Doctor>> GetAllAsync()
     {
-      var existing = GetById(id);
-      if (existing == null) return false;
-      existing.Name = updated.Name;
-      existing.Designation = updated.Designation;
-      return true;
+      return await _context.Doctors.ToListAsync();
     }
 
-    public bool Delete(int id)
+    public async Task<Doctor?> GetByIdAsync(int id)
     {
-      var doctor = GetById(id);
-      if (doctor == null) return false;
-      _doctors.Remove(doctor);
-      return true;
+      return await _context.Doctors.FindAsync(id);
+    }
+
+    public async Task AddAsync(Doctor doctor)
+    {
+      _context.Doctors.Add(doctor);
+      await _context.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(Doctor doctor)
+    {
+      _context.Entry(doctor).State = EntityState.Modified;
+      await _context.SaveChangesAsync();
+    }
+
+    public async Task DeleteAsync(int id)
+    {
+      var doctor = await _context.Doctors.FindAsync(id);
+      if (doctor != null)
+      {
+        _context.Doctors.Remove(doctor);
+        await _context.SaveChangesAsync();
+      }
     }
   }
 }

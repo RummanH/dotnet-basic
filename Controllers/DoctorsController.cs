@@ -6,21 +6,30 @@ namespace Doctors.Controllers
 {
   [ApiController]
   [Route("api/[controller]")]
-  public class DoctorsController(DoctorService service, ILogger<DoctorsController> logger) : ControllerBase
+  public class DoctorsController : ControllerBase
   {
-    private readonly ILogger<DoctorsController> _logger = logger;
+    private readonly DoctorService _service;
+    private readonly ILogger<DoctorsController> _logger;
+
+    // ✅ Correct constructor
+    public DoctorsController(DoctorService service, ILogger<DoctorsController> logger)
+    {
+      _service = service;
+      _logger = logger;
+    }
 
     [HttpGet]
-    public ActionResult<IEnumerable<DoctorResponseDto>> GetAll()
+    public async Task<ActionResult<IEnumerable<DoctorResponseDto>>> GetAll()
     {
       _logger.LogInformation("Fetching all doctors");
-      return Ok(service.GetAll());
+      var doctors = await _service.GetAllAsync();
+      return Ok(doctors);
     }
 
     [HttpGet("{id}")]
-    public ActionResult<DoctorResponseDto> GetById(int id)
+    public async Task<ActionResult<DoctorResponseDto>> GetById(int id)
     {
-      var doctor = service.GetById(id);
+      var doctor = await _service.GetByIdAsync(id);
       if (doctor == null)
       {
         _logger.LogWarning("Doctor with id {Id} not found", id);
@@ -30,19 +39,19 @@ namespace Doctors.Controllers
     }
 
     [HttpPost]
-    public ActionResult<DoctorResponseDto> Create([FromBody] CreateDoctorDto dto)
+    public async Task<ActionResult<DoctorResponseDto>> Create([FromBody] CreateDoctorDto dto)
     {
       if (!ModelState.IsValid) return BadRequest(ModelState);
-      var created = service.Add(dto);
+      var created = await _service.AddAsync(dto);
       _logger.LogInformation("Created doctor with id {Id}", created.Id);
       return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
     [HttpPut("{id}")]
-    public IActionResult Update(int id, [FromBody] UpdateDoctorDto dto)
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateDoctorDto dto)
     {
       if (!ModelState.IsValid) return BadRequest(ModelState);
-      var success = service.Update(id, dto);
+      var success = await _service.UpdateAsync(id, dto);
       if (!success)
       {
         _logger.LogWarning("Failed to update doctor with id {Id}", id);
@@ -53,9 +62,9 @@ namespace Doctors.Controllers
     }
 
     [HttpDelete("{id}")]
-    public IActionResult Delete(int id)
+    public async Task<IActionResult> Delete(int id)
     {
-      var success = service.Delete(id);
+      var success = await _service.DeleteAsync(id);
       if (!success)
       {
         _logger.LogWarning("Failed to delete doctor with id {Id}", id);
