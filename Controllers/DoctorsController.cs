@@ -8,15 +8,14 @@ namespace Doctors.Controllers
   [Route("api/[controller]")]
   public class DoctorsController(DoctorService service) : ControllerBase
   {
-    private readonly DoctorService _service = service;
 
     [HttpGet]
-    public ActionResult<IEnumerable<Doctor>> GetAll() => Ok(_service.GetAll());
+    public ActionResult<IEnumerable<Doctor>> GetAll() => Ok(service.GetAll());
 
     [HttpGet("{id}")]
     public ActionResult<Doctor> GetById(int id)
     {
-      var doctor = _service.GetById(id);
+      var doctor = service.GetById(id);
       if (doctor == null) return NotFound();
       return Ok(doctor);
     }
@@ -25,7 +24,7 @@ namespace Doctors.Controllers
     public ActionResult<Doctor> Create([FromBody] Doctor doctor)
     {
       if (!ModelState.IsValid) return BadRequest(ModelState);
-      var created = _service.Add(doctor);
+      var created = service.Add(doctor);
       return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
     }
 
@@ -33,7 +32,7 @@ namespace Doctors.Controllers
     public IActionResult Update(int id, [FromBody] Doctor doctor)
     {
       if (!ModelState.IsValid) return BadRequest(ModelState);
-      var success = _service.Update(id, doctor);
+      var success = service.Update(id, doctor);
       if (!success) return NotFound();
       return NoContent();
     }
@@ -41,7 +40,7 @@ namespace Doctors.Controllers
     [HttpDelete("{id}")]
     public IActionResult Delete(int id)
     {
-      var success = _service.Delete(id);
+      var success = service.Delete(id);
       if (!success) return NotFound();
       return NoContent();
     }
