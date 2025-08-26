@@ -3,6 +3,8 @@ bin/
 obj/
 *.dll
 *.exe
+*.db-wal
+*.db-shm
 
 # Local databases
 *.db
