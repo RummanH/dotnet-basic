@@ -11,7 +11,6 @@ namespace Doctors.Controllers
     private readonly DoctorService _service;
     private readonly ILogger<DoctorsController> _logger;
 
-    // ✅ Correct constructor
     public DoctorsController(DoctorService service, ILogger<DoctorsController> logger)
     {
       _service = service;

@@ -23,26 +23,32 @@ namespace Doctors.Repositories
       return await _context.Doctors.FindAsync(id);
     }
 
-    public async Task AddAsync(Doctor doctor)
+    public async Task<Doctor> AddAsync(Doctor doctor)
     {
       _context.Doctors.Add(doctor);
       await _context.SaveChangesAsync();
+      return doctor;
     }
 
-    public async Task UpdateAsync(Doctor doctor)
+    public async Task<bool> UpdateAsync(int id, Doctor doctor)
     {
-      _context.Entry(doctor).State = EntityState.Modified;
+      var existing = await _context.Doctors.FindAsync(id);
+      if (existing == null) return false;
+
+      existing.Name = doctor.Name;
+      existing.Designation = doctor.Designation;
       await _context.SaveChangesAsync();
+      return true;
     }
 
-    public async Task DeleteAsync(int id)
+    public async Task<bool> DeleteAsync(int id)
     {
-      var doctor = await _context.Doctors.FindAsync(id);
-      if (doctor != null)
-      {
-        _context.Doctors.Remove(doctor);
-        await _context.SaveChangesAsync();
-      }
+      var existing = await _context.Doctors.FindAsync(id);
+      if (existing == null) return false;
+
+      _context.Doctors.Remove(existing);
+      await _context.SaveChangesAsync();
+      return true;
     }
   }
 }
